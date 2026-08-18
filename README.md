@@ -69,20 +69,6 @@ To execute the end-to-end training pipeline (trains scratch CNNs and transfer le
 python train_and_evaluate.py
 ```
 
-Optional flags:
-
-```bash
-# Run hyperparameter tuning before the main pipeline
-python train_and_evaluate.py --tune grid
-python train_and_evaluate.py --tune random --tune-iters 8
-python train_and_evaluate.py --tune bayesian --tune-iters 10
-
-# Also export the ResNet-18 model to TensorFlow Lite
-# (requires: pip install -r requirements-tflite.txt)
-python train_and_evaluate.py --tflite
-python train_and_evaluate.py --tflite --tflite-quantize   # + INT8 dynamic-range quantization
-```
-
 ### 3. Run the Web Application
 
 Launch the Flask server:
