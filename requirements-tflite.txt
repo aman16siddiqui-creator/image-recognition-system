@@ -1,0 +1,27 @@
+# Optional dependencies for the "Convert model to TensorFlow Lite" deployment
+# requirement (src/export.py::export_to_tflite).
+#
+# These are kept separate from requirements.txt because TensorFlow + onnx2tf
+# are large, slow to install, and only needed if you actually want a .tflite
+# artifact (the ONNX / TorchScript exports in requirements.txt already cover
+# CPU/GPU deployment without these).
+#
+# Install with:
+#   pip install -r requirements-tflite.txt
+#
+# Then:
+#   from src.export import export_to_tflite
+#   export_to_tflite(model, dummy_input)
+#
+# or via the CLI pipeline:
+#   python train_and_evaluate.py --tflite
+#   python train_and_evaluate.py --tflite --tflite-quantize
+#
+# or via the running Flask app:
+#   POST /api/export/tflite   {"model_id": "custom_resnet", "quantize": false}
+
+tensorflow>=2.13.0,<2.17.0
+onnx2tf>=1.20.0
+onnx-graphsurgeon>=0.3.27
+sng4onnx>=1.0.13
+onnxsim>=0.4.33

@@ -1,0 +1,28 @@
+# Data
+data/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Environment variables
+.env
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Model artifacts and exports
+models/
+*.pt
+*.pth
+*.onnx
+*.onnx.data
+*.tflite

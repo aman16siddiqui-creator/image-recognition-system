@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CNN Image Classification & Object Recognition System</title>
+  <meta name="description" content="Advanced Deep Learning & Computer Vision System featuring Custom Scratch CNNs, Transfer Learning, Grad-CAM Explainability, and Model Benchmarking.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header-container">
+    <div class="logo-section">
+      <h1><i class="fa-solid fa-brain"></i> VisionAI Classifier</h1>
+    </div>
+    <div class="header-status">
+      <span class="badge-tag"><i class="fa-solid fa-bolt"></i> PyTorch 2.13 CPU/GPU Inference Ready</span>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-layout">
+
+    <!-- Left Controls Panel -->
+    <section class="glass-panel">
+      <h2 class="panel-title"><span><i class="fa-solid fa-sliders"></i> Model & Input Controls</span></h2>
+
+      <!-- Model Selector -->
+      <div class="select-wrapper">
+        <label for="modelSelect"><i class="fa-solid fa-layer-group"></i> Choose Architecture (All 7 Models Implemented):</label>
+        <select id="modelSelect" class="custom-select">
+          <option value="resnet18" selected>ResNet-18 (Transfer Learning - Highest Accuracy)</option>
+          <option value="vgg16">VGG-16 (Transfer Learning - Feature Extractor)</option>
+          <option value="efficientnet">EfficientNet-B0 (Transfer Learning - Fine-Tuned)</option>
+          <option value="custom_resnet">Custom ResNet Block CNN (Built From Scratch)</option>
+          <option value="alexnet_scratch">AlexNet-Like CNN (Built From Scratch)</option>
+          <option value="lenet5">Custom LeNet-5 (Built From Scratch)</option>
+        </select>
+      </div>
+
+      <!-- Drag & Drop Upload Zone -->
+      <div class="dropzone" id="dropzone">
+        <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+        <p><strong>Drag & Drop an image here</strong> or click to browse</p>
+        <p style="font-size:11px; margin-top:4px;">Supports PNG, JPG, JPEG, WEBP</p>
+        <input type="file" id="fileInput" class="file-input" accept="image/*">
+      </div>
+
+      <!-- Webcam Option -->
+      <div style="margin-top: 15px; text-align: center;">
+        <button id="webcamBtn" class="tab-btn" style="border: 1px solid var(--panel-border); width: 100%;"><i class="fa-solid fa-camera"></i> Capture from Live Webcam</button>
+        <video id="webcamVideo" style="display:none; width:100%; margin-top:10px; border-radius:10px;" autoplay></video>
+        <canvas id="webcamCanvas" style="display:none;"></canvas>
+      </div>
+
+      <!-- Sample Dataset Gallery -->
+      <div class="gallery-section">
+        <div class="gallery-title"><i class="fa-solid fa-images"></i> Test Photorealistic Dataset Samples:</div>
+        <div class="samples-grid">
+          <div class="sample-chip" data-label="airplane">✈️ Airplane</div>
+          <div class="sample-chip" data-label="automobile">🚗 Car</div>
+          <div class="sample-chip" data-label="bird">🐦 Bird</div>
+          <div class="sample-chip" data-label="cat">🐱 Cat</div>
+          <div class="sample-chip" data-label="deer">🦌 Deer</div>
+          <div class="sample-chip" data-label="dog">🐶 Dog</div>
+          <div class="sample-chip" data-label="frog">🐸 Frog</div>
+          <div class="sample-chip" data-label="horse">🐴 Horse</div>
+          <div class="sample-chip" data-label="ship">🚢 Ship</div>
+          <div class="sample-chip" data-label="truck">🚚 Truck</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Prediction & Explainability Panel -->
+    <section class="glass-panel">
+      <h2 class="panel-title">
+        <span><i class="fa-solid fa-chart-simple"></i> Real-Time Results & Explainability</span>
+        <span class="latency-badge" id="latencyBadge"><i class="fa-solid fa-stopwatch"></i> -- ms</span>
+      </h2>
+
+      <!-- Top Prediction Banner -->
+      <div class="prediction-banner" id="predictionBanner">
+        <div>
+          <div style="font-size:12px; color:var(--text-muted);">Top Class Prediction:</div>
+          <div class="top-class-name" id="topClassName">Waiting for input...</div>
+        </div>
+        <div class="confidence-pill" id="topConfidencePill">0%</div>
+      </div>
+
+      <!-- Top-5 Confidence Bar Charts -->
+      <div id="predictionsList" style="margin-bottom: 25px;">
+        <p style="color:var(--text-muted); font-size:13px;">Upload an image or select a sample to classify.</p>
+      </div>
+
+      <!-- Tabs: Grad-CAM / Saliency / Benchmarking -->
+      <div class="tab-buttons">
+        <button class="tab-btn active" id="tabGradCam"><i class="fa-solid fa-eye"></i> Grad-CAM Heatmap</button>
+        <button class="tab-btn" id="tabSaliency"><i class="fa-solid fa-wand-magic-sparkles"></i> Saliency Map</button>
+        <button class="tab-btn" id="tabBenchmark"><i class="fa-solid fa-table"></i> Model Benchmarks</button>
+      </div>
+
+      <!-- Explainability Image Display -->
+      <div class="img-preview-container" id="visualContainer">
+        <img id="visualImage" src="" alt="Model Visualization Output" style="display:none;">
+        <div id="placeholderText" style="color:var(--text-muted); font-size:13px; text-align:center;">
+          <i class="fa-solid fa-image" style="font-size:32px; display:block; margin-bottom:8px; opacity:0.5;"></i>
+          Grad-CAM object attention heatmap will appear here.
+        </div>
+      </div>
+
+      <!-- Benchmarks Table Container -->
+      <div id="benchmarkContainer" style="display:none;">
+        <table class="benchmark-table">
+          <thead>
+            <tr>
+              <th>Model Architecture</th>
+              <th>Top-1 Acc</th>
+              <th>Top-3 Acc</th>
+              <th>Latency</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody id="benchmarkBody">
+            <!-- Dynamically Populated -->
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
